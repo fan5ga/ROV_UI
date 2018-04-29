@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="400.667px" height="400.667px" viewBox="0 0 400.667 400.666" enable-background="new 0 0 400.667 400.666"
+	 xml:space="preserve">
+
+<g id="Layer_2">
+	
+
+	<line fill="none" stroke="#FFFFFF" stroke-width="4" stroke-miterlimit="10" x1="50.667" y1="200.333" x2="100.333" y2="200.333"/>
+	<line fill="none" stroke="#FFFFFF" stroke-width="4" stroke-miterlimit="10" x1="300.749" y1="200.333" x2="350.433" y2="200.333"/>
+	<line fill="none" stroke="#FFFFFF" stroke-width="4" stroke-miterlimit="10" x1="78.415" y1="131.582" x2="112.082" y2="151.915"/>	
+	<line fill="none" stroke="#FFFFFF" stroke-width="4" stroke-miterlimit="10" x1="288.751" y1="151.915" x2="323.585" y2="131.582"/>
+	<line fill="none" stroke="#FFFFFF" stroke-width="4" stroke-miterlimit="10" x1="149.418" y1="113.75" x2="129.418" y2="79.25"/>
+	<line fill="none" stroke="#FFFFFF" stroke-width="4" stroke-miterlimit="10" x1="252.084" y1="113.75" x2="272.751" y2="79.25"/>
+	<polygon fill="#FFFFFF" points="185.918,60.085 215.251,60.085 200.585,98.918 	"/>
+	<polygon fill="#FFFFFF" points="119.084,117.417 112.082,124.251 126.584,131.582 	"/>
+	<polygon fill="#FFFFFF" points="274.084,131.582 281.251,117.417 288.751,124.5 	"/>
+</g>
+</svg>

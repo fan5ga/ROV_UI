@@ -1,0 +1,443 @@
+<html>
+<head>
+
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='fonts.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='flightindicators.css') }}" />
+</head>
+
+<script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js')}}"></script>
+<!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script> -->
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.flightindicators.js')}}"></script>
+<script type=text/javascript>
+    $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
+</script>
+<script type="text/javascript" src="{{ url_for('static', filename='nipplejs.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='keyboardstate.js')}}"></script>
+<body>
+    <div id='joydata1'></div>
+    <div id='joydata2'></div>
+    <div id='joydata3'></div>
+    <div id='joydata4'></div>
+    <div id='tmpdata'></div>
+    <script language="javascript" type="text/javascript">
+        var keyboard = new KeyboardState();
+        var base = 1460;
+        var x = 0;
+        var y = 0;
+        var force = 0;
+        var angle = 0;
+
+        var up_down = 0;
+
+        var roll_ = 0;
+        var pitch_ = 0;
+        var yaw_ = 0;
+
+
+
+        $(document).ready(function () {
+            //////////////////////////////////
+            //joystick
+            var options = {
+                zone: document.getElementById('container'),
+                multitouch: true,
+                maxNumberOfNipples: 2,
+                position: { top: '50%', left: '50%' },
+                mode: 'static'
+
+
+            };
+
+            var manager = nipplejs.create(options);
+
+            var options2 = {
+                zone: document.getElementById('container2'),
+                multitouch: true,
+                maxNumberOfNipples: 2,
+                position: { top: '50%', left: '50%' },
+                mode: 'static'
+
+
+            };
+            var manager2 = nipplejs.create(options2);
+
+
+            function bindNipple() {
+                manager.on('start end', function (evt, data) {
+                    x = 0;
+                    y = 0;
+                    force = 0;
+
+                }).on('move', function (evt, data) {
+                    if (data['force'] > 2) force = 2;
+                    else force = data['force'];
+
+                    y = parseInt(400.0 / 2 * force * Math.sin(data['angle']['degree'] * 0.017453293));
+                    x = parseInt(80.0 / 2 * force * Math.cos(data['angle']['degree'] * 0.017453293));
+
+                });
+
+
+                manager2.on('start end', function (evt, data) {
+
+                    up_down = 0;
+
+                }).on('move', function (evt, data) {
+                    if (data['force'] > 5) { force = 5; }
+                    else { force = data['force'] };
+                    up_down = parseInt(400.0 / 5 * force * Math.sin(data['angle']['degree'] * 0.017453293));
+
+                });
+
+
+            };
+            bindNipple();
+
+            /////////////////////////////////////
+            // aircraft
+            var attitude = $.flightIndicator('#attitude', 'attitude', { roll: 50, pitch: -20, size: 800, showBox: true });
+            var heading = $.flightIndicator('#heading', 'heading', { heading: 150, size: 200, showBox: true });
+
+            var turn_coordinator = $.flightIndicator('#turn_coordinator', 'turn_coordinator', { turn: 0 });
+            var increment = 0;
+            var start = new Date().getTime();
+            setInterval(function () {
+                document.getElementById("joydata1").innerHTML = new Date().getTime() - start;
+
+                // read data
+                $.get('/read_data', function (data) {
+                    document.getElementById("tmpdata").innerHTML = data;
+                    var data_array = data.split('/');
+                    document.getElementById("roll_value").innerHTML = data_array[0];
+                    document.getElementById("pitch_value").innerHTML = data_array[1];
+                    document.getElementById("yaw_value").innerHTML = data_array[2];
+                    document.getElementById("temp_value").innerHTML = data_array[3];
+                    document.getElementById("depth_value").innerHTML = data_array[4];
+                    document.getElementById("battery_value").innerHTML = data_array[5];
+                    roll_ = parseFloat(data_array[0]);
+                    pitch_ = parseFloat(data_array[1]);
+
+                    yaw_ = parseFloat(data_array[2]);
+
+
+                    var voltage = parseFloat(data_array[5]);
+                    if (voltage > 12) { volate = 12; }
+                    else if (voltage < 10.5) { voltage = 10.5; }
+                    var usage = (voltage - 10.5) / (12 - 10.5) * 7.2;
+
+                    document.getElementById("battery_css").style.width = String(usage.toFixed(1)) + 'em';
+
+
+                });
+
+                // time
+                var myDate = new Date();
+                var hour = myDate.getHours();
+                var minute = myDate.getMinutes();
+
+                var second = myDate.getSeconds();
+
+                var time = hour + ':';
+                if (minute < 10)
+                    time = time + "0";
+                time = time + minute + ':';
+
+                if (second < 10)
+                    time = time + "0";
+                time = time + second;
+                document.getElementById("showtime").innerHTML = time;
+            }, 200);
+
+            setInterval(function () {
+                // aircraft
+                attitude.setRoll(roll_);
+                attitude.setPitch(pitch_);
+                increment++;
+                // TC update - note that the TC appears opposite the angle of the attitude indicator, as it mirrors the actual wing up/down position
+                turn_coordinator.setTurn(yaw_);
+                // Heading update
+                heading.setHeading(roll_);
+            }, 50);
+
+
+            setInterval(function () {
+                //joystick+kryboard
+                var joy = y.toString() + ',' + x.toString() + ',' + (base + up_down).toString();
+                var left_tmp = 0;
+                var right_tmp = 0;
+                var up_tmp = 0;
+                var cam_tmp = 0;
+                var stage = 150;
+                if (keyboard.pressed("W")) {
+                    left_tmp = left_tmp + 1;
+                    right_tmp = right_tmp + 1;
+
+                }
+                if (keyboard.pressed("S")) {
+                    left_tmp = left_tmp - 1;
+                    right_tmp = right_tmp - 1;
+
+                }
+                if (keyboard.pressed("A")) {
+                    left_tmp = left_tmp + 0.5;
+                    right_tmp = right_tmp - 0.5;
+                }
+                if (keyboard.pressed("D")) {
+                    left_tmp = left_tmp - 0.5;
+                    right_tmp = right_tmp + 0.5;
+                }
+                if (keyboard.pressed("up")) {
+                    up_tmp = 1;
+                }
+                if (keyboard.pressed("down")) {
+                    up_tmp = -1;
+                }
+                var key = (base + left_tmp * stage).toString() + ',' + (base + left_tmp * stage).toString() + ',' + (base + up_tmp * stage).toString();
+
+
+                var hold_status = (document.getElementById("hold1_status").checked ? '1' : '0') + ',' + (document.getElementById("hold2_status").checked ? '1' : '0');
+
+                var light_status = document.getElementById("light_status").value.toString() + ',' + document.getElementById("up_down_status").value.toString();
+
+                $.post("/joystick_keyboard", { keyboard: key, joystick: joy, hold: hold_status, light: light_status });
+
+
+
+
+            }, 200);
+
+
+
+        });
+
+
+
+
+
+        $(document).ready(function () {
+            $("#settings").click(function () {
+                if ($("#setting-menu").is(":visible")) {
+                    $("#setting-menu").hide(100);
+                    document.getElementById("settings").style.backgroundColor = 'rgba(255, 255, 255, 0)';
+                }
+                else {
+                    $("#setting-menu").show(100);
+                    document.getElementById("settings").style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+
+                }
+
+            });
+
+
+            $("#joystick").click(function () {
+                if ($("#container").is(":visible")) {
+                    $("#container").hide(100);
+                    $("#container2").hide(100);
+                    document.getElementById("joystick").style.backgroundColor = 'rgba(255, 255, 255, 0)';
+                }
+                else {
+                    $("#container").show(100);
+                    $("#container2").show(100);
+                    document.getElementById("joystick").style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+
+                }
+
+            });
+
+
+            $('#checkbox1').change(function () {
+                if ($(this).is(":checked")) {
+                    $("#attitude").show(100);
+                }
+                else {
+                    $("#attitude").hide(100);
+                }
+            });
+            $('#checkbox2').change(function () {
+                if ($(this).is(":checked")) {
+                    $("#heading").show(100);
+                }
+                else {
+                    $("#heading").hide(100);
+                }
+            });
+            $('#checkbox3').change(function () {
+                if ($(this).is(":checked")) {
+                    $("#light").show(100);
+                    $("#up_down").show(100);
+                }
+                else {
+                    $("#light").hide(100);
+                    $("#up_down").hide(100);
+                }
+            });
+
+        });
+    </script>
+    <!--style="url({{ url_for('video_feed') }})"-->
+    <div class="rov">
+        <!-- <h1>Popup/Modal Windows without JavaScript</h1> -->
+        <div id="container"></div>
+        <div id="container2"></div>
+
+        <div id="nav">
+            <div id="logo"><img src="static/logo.png" alt="..."></div>
+            <div class='information' id='status'>
+                <div class='info1'>STATUS </div>
+                <div class='info2'> OK</div>
+            </div>
+            <div class='information' id='depth'>
+                <div class='info1'>DEPTH </div>
+                <div class='info2'> <span id='depth_value'>-19.3</span> m</div>
+            </div>
+            <div class='information' id='temperautre'>
+                <div class='info1'>TEMP </div>
+                <div class='info2'> <span id='temp_value'>-19.3</span> °C</div>
+            </div>
+            <div class='information' id='imu_data'>
+                <div class='info1'>
+                    IMU <br>
+                    <table border="0" width=100%>
+                        <tr>
+                            <th>Roll</th>
+                            <th>Pitch</th>
+                            <th>Yaw</th>
+                        </tr>
+                    </table>
+                </div>
+                <div class='info2'>
+                    <table border="0" width=100% bottom:0>
+                        <tr>
+                            <th><span id='roll_value'>-19.3</span>°</th>
+                            <th><span id='pitch_value'>-19.3</span>°</th>
+                            <th><span id='yaw_value'>-19.3</span>°</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class='information' id='hold'>
+                <div class='info1' id='hold1'>
+                    HOLD HEADING:&nbsp
+                    <label class="switch">
+                        <input type="checkbox" id='hold1_status'>
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+                <div class='info2' id="hold2">
+                    HOLD DEPTH:&nbsp&nbsp&nbsp&nbsp
+                    <label class="switch">
+                        <input type="checkbox" id='hold2_status'>
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+            </div>
+            <div class='information' id='battery'>
+                <div class='info1' id='battery_usage'>
+                    <div class="battery" id='battery_css'></div>
+                </div>
+                <div class='info2' id="battery_percentage">
+                    <span id='battery_value'>11.1</span>V
+
+                </div>
+            </div>
+            <div class='information' id='time'>
+                <div class='info1' id='showtime'>
+
+                </div>
+                <div class='info2'>
+                </div>
+            </div>
+
+
+            <div class='img'>
+                <a href="javascript:void(0)" id="home"><img src="static/home.png" alt="..."></a>
+                <!-- <a href="#"><img src="static/home.png" alt="..." height="30px"></a> -->
+            </div>
+            <div class='img'>
+                <a href="javascript:void(0)" id="joystick"> <img src="static/joystick.png" alt="..."></a>
+            </div>
+
+            <div class='img'>
+                <a href="javascript:void(0)" id="settings" id="settings"> <img src="static/settings.png" alt="..."></a>
+            </div>
+
+
+        </div>
+
+        <div>
+
+            <!-- <div class="temp_pressure" id="temp">
+                <div class="temp_pressure_name">Temp:&nbsp;&nbsp;</div>
+                <div class="temp_pressure_value" id="temp_value"></div>
+                <div class="temp_pressure_unit">℃</div>
+            </div>
+
+
+            <div class="temp_pressure" id="pressure">
+                <div class="temp_pressure_name">Pressure:&nbsp;&nbsp;</div>
+                <div class="temp_pressure_value" id="pressure_value"></div>
+                <div class="temp_pressure_unit">mbr</div>
+            </div>
+
+
+            <div class = "data" id="data-div">
+                <div id ="imu">IMU</div>
+                <div id = "data1">Roll:&nbsp;&nbsp;</div>
+                <div id = "data_1"><span id="d1"></span> </div>
+
+                <div id = "data2">Pitch:&nbsp;&nbsp; </div>
+                <div id = "data_2"><span id="d2"></span> </div>
+                <div id = "data3">Yaw:&nbsp;&nbsp; </div>
+                <div id = "data_3"><span id="d3"></span> </div>
+
+
+
+            </div> -->
+            <div class="setting_menu" id="setting-menu">
+                <table>
+                    <tr>
+                        <td><span class=table_column>Attitude:</span></td>
+                        <td align='right'><label class="switch"><input type="checkbox" id="checkbox1" checked="checked"><span class="slider round"></span></label></td>
+                    </tr>
+                    <tr>
+                        <td><span class=table_column>Heading:</span></td>
+                        <td align='right'><label class="switch"><input type="checkbox" id="checkbox2" checked="checked"><span class="slider round"></span></label></td>
+                    </tr>
+                    <tr>
+                        <td><span class=table_column>Slider:</span></td>
+                        <td align='right'><label class="switch"><input type="checkbox" id="checkbox3" checked="checked"><span class="slider round"></span></label></td>
+                    </tr>
+                    <tr id='last_row'>
+                        <td><span class=table_column>KEYBOARD:</span></td>
+                        <td><input type="range" id="myRange" min="1" max="5" step="1" value="1"></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+        <!-- slider -->
+        <div class="slider-wrapper" id="light">
+
+            <input type="range" min="0" max="255" value="0" step="5" class="camera_slider" id='light_status'>
+            <div class="imgs"><img src="static/light.png" alt="..." height="30px"></div>
+
+        </div>
+        <div class="slider-wrapper" id="up_down">
+
+            <input type="range" min="60" max="120" value="90" step="5" class="camera_slider" id='up_down_status'>
+            <div class="imgs"><img src="static/up_down.png" alt="..." height="30px"></div>
+
+        </div>
+
+        <!-- artifical horizon -->
+        <div id='air_attitude'><span id="attitude"></span></div>
+        <div id='air_heading'><span id="heading"></span></div>
+
+    </div>
+    <div id="rov-background"><iframe src="http://192.168.0.100:8000/index.html" id="iframepage" name="iframepage" frameBorder=0 scrolling=no height="720px" width="1280px"></iframe></div>
+
+
+</body>
+</html>

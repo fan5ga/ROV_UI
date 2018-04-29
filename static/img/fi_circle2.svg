@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="8.5in" height="11in" version="1.1" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd"
+viewBox="0 0 8500 11000"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ enable-background="new 0 0 400.667 400.666">
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <filter filterUnits="objectBoundingBox" id="AI_Shadow_1">
+   <feGaussianBlur stdDeviation="5" result="blur" in="SourceAlpha"/>
+   <feOffset dy="0" dx="0" result="offsetBlurredAlpha" in="blur"/>
+   <feMerge>
+    <feMergeNode in="offsetBlurredAlpha"/>
+    <feMergeNode in="SourceGraphic"/>
+   </feMerge>
+  </filter>
+ </g>
+</svg>

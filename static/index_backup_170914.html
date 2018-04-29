@@ -1,0 +1,219 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<link href="https://fonts.googleapis.com/css?family=Oswald|PT+Sans+Narrow|Abel" rel="stylesheet">
+
+<body >
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type=text/javascript>
+  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+
+
+
+<script language="javascript" type="text/javascript">
+
+
+setInterval(function(){
+$.get('/read_data', function(data){
+    var data_array = data.split('/');
+    document.getElementById("d1").innerHTML=data_array[0];
+    document.getElementById("d2").innerHTML=data_array[1];
+    document.getElementById("d3").innerHTML=data_array[2];
+    
+ });  
+
+
+	var myDate = new Date();
+	var hour = myDate.getHours();
+	var minute = myDate.getMinutes();
+
+	var second = myDate.getSeconds();
+
+	var time = hour + ':';
+	if (minute < 10)
+	time = time + "0";
+	time = time + minute + ':';
+
+	if (second < 10)
+	time = time + "0";
+	time = time + second;
+	document.getElementById("showtime").innerHTML=time;	
+
+},100);
+
+
+
+
+</script>
+<!--dada-div-hide-show-->
+
+<script type="text/javascript">
+$(document).ready(function(){
+  $("#settings").click(function(){
+  if($("#setting-menu").is(":visible")){
+      $("#setting-menu").hide(100);
+      document.getElementById("settings").style.backgroundColor = 'rgba(255, 255, 255, 0)';
+  }
+  else{
+      $("#setting-menu").show(100);
+       document.getElementById("settings").style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+
+  }
+  
+  });
+  $('#checkbox1').change(function() {
+        if($(this).is(":checked")) {
+	   $("#pressure").show(100);
+        }
+        else{
+	   $("#pressure").hide(100);
+	}
+    });
+  $('#checkbox2').change(function() {
+        if($(this).is(":checked")) {
+           $("#temp").show(100);
+        }
+        else{
+	   $("#temp").hide(100);
+	}
+    });
+  $('#checkbox3').change(function() {
+        if($(this).is(":checked")) {
+         $("#data-div").show(100);
+        }
+        else{
+	   $("#data-div").hide(100);
+	}  
+    });
+
+});
+</script>
+
+
+
+<div class="rov" style="background-image: url({{ url_for('video_feed') }});">
+<!-- <h1>Popup/Modal Windows without JavaScript</h1> -->
+
+
+
+
+
+	<nav>
+	  <ul>
+		<li>
+		<a href="javascript:void(0)" id = "home"><img src="home.png" alt="..." height="30px"></a>
+		  <!-- <a href="#"><img src="home.png" alt="..." height="30px"></a> -->
+		</li>
+		<li>
+		  <a href="javascript:void(0)" id = "joystick"> <img src="joystick.png" alt="..." height="30px"></a>
+		<li>
+		  <a href="javascript:void(0)" id = "battery" > <img src="battery.png" alt="..." height="30px"></a>
+		</li>
+		<li>
+		  <a href="javascript:void(0)" id="settings" id="settings"> <img src="settings.png" alt="..." height="30px"></a>
+		</li>
+
+	  </ul>
+	</nav>
+	<div class="logo"><I>ROV</I></div>
+	<div class = "sidebar">
+		<div class = "shutter">
+			<a href="#"><img src="shutter.png" alt="..." height="40px"></a>
+		</div>
+		<div class = "settings2">
+			<a href="#"><img src="settings2.png" alt="..." height="40px"></a>
+		</div>
+		<div class = "slidebar" id="sidebar1">
+			<label class="switch">
+			  <input type="checkbox">
+			  <div class="slider round"></div>
+			</label>
+		</div>
+		
+	</div>
+
+	<div class = "time" id = "showtime">
+		
+	</div>
+	
+
+
+	<div class="temp_pressure" id="temp">
+		<div class="temp_pressure_name">Temp:&nbsp;&nbsp;</div>
+		<div class="temp_pressure_value" id="temp_value">35.4</div>
+		<div class="temp_pressure_unit">℃</div>
+	</div>
+
+
+	<div class="temp_pressure" id="pressure">
+		<div class="temp_pressure_name">Pressure:&nbsp;&nbsp;</div>
+		<div class="temp_pressure_value" id="pressure_value">984</div>
+		<div class="temp_pressure_unit">mbr</div>
+	</div>
+
+
+	<div class = "data" id="data-div">
+		<div id ="imu">IMU</div>
+		<div id = "data1">Roll:&nbsp;&nbsp;</div>
+		<div id = "data_1"><span id="d1"></span> </div>
+
+		<div id = "data2">Pitch:&nbsp;&nbsp; </div>
+		<div id = "data_2"><span id="d2"></span> </div>
+		<div id = "data3">Yaw:&nbsp;&nbsp; </div>
+		<div id = "data_3"><span id="d3"></span> </div>
+
+
+	
+	</div>
+
+	<div class="setting_menu" id="setting-menu">
+		<table>
+			<tr> 
+				<td ><div class=table_column>Pressure:</div></td>
+				<td><label class="switch"><input type="checkbox" id="checkbox1" checked="checked"><span class="slider round"></span></label></td>
+			</tr>
+			<tr> 
+				<td><div class=table_column>Temperautre:</div></td>
+				<td><label class="switch"><input type="checkbox" id="checkbox2" checked="checked"><span class="slider round"></span></label></td>
+			</tr>
+			<tr> 
+				<td><div class=table_column>IMU:</div></td>
+				<td><label class="switch"><input type="checkbox" id="checkbox3"checked="checked"><span class="slider round"></span></label></td>
+			</tr>
+			<tr><td></td><td></td></tr>
+			<tr><td></td><td></td></tr>
+		</table>
+	</div>	
+
+	<!--<div class="box">
+		<a class="button" href="#popup1">Let me Pop up</a>
+	</div>
+
+	<div id="popup1" class="overlay">
+		<div class="popup">
+			<h2>Here i am</h2>
+			<a class="close" href="#">&times;</a>
+			<div class="content">
+				Thank to pop me out of that button, but now i'm done so you can close this window.
+			</div>
+		</div>
+	</div> -->
+</div>
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
